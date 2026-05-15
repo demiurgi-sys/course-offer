@@ -853,12 +853,12 @@
 
                     <div class="sales__pricing">
                         <div class="price price--old">Ціна: <span style="font-size: 1.2em; font-weight: bold;">12 000 грн/місяць</span></div>
-                        <div class="price price--current">Ціна для тебе: <strong>8 000 грн/місяць</strong></div>
-                        <div style="color: #4CAF50; font-weight: bold; margin: 10px 0;">Твоя вигода 28 тисяч гривень</div>
-                        <div style="color: #ff4d4d; margin-top: 5px;">пропозиція дійсна ще:</div>
+                        <div class="price price--current">Ціна для тебе: <strong id="dynamic-price">8 000 грн/місяць</strong></div>
+                        <div id="dynamic-benefit" style="color: #ffffff; font-weight: bold; margin: 15px 0 5px 0;">Твоя вигода 28 000 гривень</div>
+                        <div style="color: #ffffff; margin-bottom: 15px; font-size: 0.9em;">пропозиція дійсна ще:</div>
                     </div>
 
-                    <div class="sales__timer-box">
+                    <div class="sales__timer-box" style="margin-bottom: 25px;">
                         <div class="timer" id="countdown-timer">
                             <div class="timer__item">
                                 <span class="timer__value" id="timer-hours">22</span>
@@ -877,7 +877,7 @@
                         </div>
                     </div>
 
-                    <div class="price price--deposit" style="margin-top: 20px;">Бронювання місця: <span>2 000 грн</span></div>
+                    <div class="price price--deposit" style="margin-bottom: 25px;">Бронювання місця: <span>2 000 грн</span></div>
 
                     <div class="sales__cta">
                         <a href="https://secure.wayforpay.com/button/bb89a3fa1a316" class="btn btn--primary btn--large"
@@ -1143,8 +1143,31 @@
             // Sales Timer Logic
             function updateTimer() {
                 const now = new Date();
-                // Дедлайн: Субота, 28 лютого 2026 включно (кінець дня)
-                const deadline = new Date('2026-05-16T21:00:00Z'); // 17 травня 00:00 за Києвом (UTC+3)
+                
+                // Дедлайни (UTC+3 / Київ)
+                const phase1End = new Date('2026-05-16T21:00:00Z'); // 17 травня 00:00 (з суботи на неділю)
+                const phase2End = new Date('2026-05-19T21:00:00Z'); // 20 травня 00:00 (з вівторка на середу)
+
+                let deadline;
+                const priceEl = document.getElementById('dynamic-price');
+                const benefitEl = document.getElementById('dynamic-benefit');
+
+                if (now < phase1End) {
+                    // Фаза 1: ціна 8000
+                    deadline = phase1End;
+                    if (priceEl) priceEl.textContent = '8 000 грн/місяць';
+                    if (benefitEl) benefitEl.textContent = 'Твоя вигода 28 000 гривень';
+                } else if (now < phase2End) {
+                    // Фаза 2: ціна 9000
+                    deadline = phase2End;
+                    if (priceEl) priceEl.textContent = '9 000 грн/місяць';
+                    if (benefitEl) benefitEl.textContent = 'Твоя вигода 21 000 гривень';
+                } else {
+                    // Завершення
+                    deadline = now;
+                    if (priceEl) priceEl.textContent = '12 000 грн/місяць';
+                    if (benefitEl) benefitEl.style.display = 'none';
+                }
 
                 let diff = deadline - now;
                 if (diff < 0) diff = 0;
@@ -1153,9 +1176,13 @@
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-                document.getElementById('timer-hours').textContent = String(hours).padStart(2, '0');
-                document.getElementById('timer-minutes').textContent = String(minutes).padStart(2, '0');
-                document.getElementById('timer-seconds').textContent = String(seconds).padStart(2, '0');
+                const hEl = document.getElementById('timer-hours');
+                const mEl = document.getElementById('timer-minutes');
+                const sEl = document.getElementById('timer-seconds');
+                
+                if (hEl) hEl.textContent = String(hours).padStart(2, '0');
+                if (mEl) mEl.textContent = String(minutes).padStart(2, '0');
+                if (sEl) sEl.textContent = String(seconds).padStart(2, '0');
             }
 
             const timerInterval = setInterval(updateTimer, 1000);
